@@ -78,6 +78,27 @@ streamlit run app.py
 
 <br><br>
 
+## データの取り扱いについて
+
+- 本アプリは個人利用および学習を目的としたツールであり、投資勧誘を目的としたものではありません。
+- `yfinance` ライブラリを使用しています。利用にあたっては、Yahoo! の規約を遵守してください。
+- 短時間での大量取得はサーバーに負担がかかります。APIのレート制限を守り、過度なリクエストは避けてください。
+
+### Yahoo! 規約類
+
+- [Yahoo! Finance Terms of Service](https://legal.yahoo.com/us/en/yahoo/terms/otos/index.html)
+- [Yahoo! Developer API Terms of Use](https://policies.yahoo.com/us/en/yahoo/terms/product-atos/apiforydn/index.htm)
+- [Yahoo! 権利関係ページ](https://legal.yahoo.com/us/en/yahoo/permissions/requests/index.html)
+
+<br><br>
+
+## ⚠️ 免責事項
+
+- **データの正確性**：取得データは正確性や即時性を保証しません。
+- **損害への責任**：本ツールの利用により生じたいかなる損害についても、制作者は一切の責任を負いません。
+
+<br><br>
+
 ## ライセンス
 
 MIT
