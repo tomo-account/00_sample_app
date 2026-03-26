@@ -2,7 +2,7 @@
 
 日本株の５分足チャートを表示する Streamlit アプリです。複数銘柄を同時に確認でき、ローソク足・出来高・日次騰落率をひとつの画面にまとめて表示します。
 
-<br>
+<br><br>
 
 ## 機能
 
@@ -13,7 +13,7 @@
 - **TOPIX銘柄辞書** — `data_j.xls` から銘柄名を自動取得
 - **キャッシュ機能** — `yfinance` のデータを５分間キャッシュしてAPIコールを削減
 
-<br>
+<br><br>
 
 ## 必要要件
 
@@ -30,7 +30,7 @@ openpyxl
 xlrd
 ```
 
-<br>
+<br><br>
 
 ## セットアップ
 
@@ -46,7 +46,7 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-<br>
+<br><br>
 
 ## データファイル
 
@@ -56,7 +56,7 @@ streamlit run app.py
 
 > `data_j.xls` が存在しない場合でも動作しますが、銘柄名の代わりにコード＋`.T` が表示されます。
 
-<br>
+<br><br>
 
 ## 使い方
 
@@ -64,7 +64,7 @@ streamlit run app.py
 2. **基準日** で表示の終端日を指定
 3. **遡る日数** でチャートに表示する営業日数を設定（1〜60日）
 
-<br>
+<br><br>
 
 ## ディレクトリ構成
 
@@ -76,7 +76,7 @@ streamlit run app.py
 └── README.md
 ```
 
----
+<br><br>
 
 ## ライセンス
 
