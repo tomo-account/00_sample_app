@@ -24,12 +24,12 @@
 ### 依存ライブラリ
 
 ```
-streamlit
-pandas
-altair
-yfinance
-openpyxl
-xlrd
+streamlit==1.52.2
+pandas==2.3.3
+altair==6.0.0
+yfinance==1.0
+openpyxl==3.1.5
+xlrd==2.0.2
 ```
 
 <br><br>
