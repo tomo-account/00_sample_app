@@ -3,28 +3,27 @@ import pandas as pd
 import altair as alt
 import yfinance as yf
 from datetime import datetime, timedelta, time
-from time import sleep
 import re
-from pathlib import Path
 
-BASE_DIR = Path(__file__).parent
 Y = 50
 
-@st.cache_resource(show_spinner=False)
-def load_topix():
+@st.cache_data(ttl=3600, show_spinner=False)
+def get_name(code):
     try:
-        df = pd.read_excel(BASE_DIR / "data_j.xls")
-        return dict(zip(df['コード'].astype(str), df['銘柄名']))
-    except:
-        return {}
+        q = yf.Search(f"{code}.T", max_results=1).quotes
+        return (q[0].get("shortname") or f"{code}.T") if q else f"{code}.T"
+    except Exception:
+        return f"{code}.T"
 
 @st.cache_data(ttl=300)
 def load_stock(code, end_dt, days):
     sym = f"{code}.T"
     df5 = yf.download(sym, start=end_dt - timedelta(days=45),
-                      end=end_dt + timedelta(days=1), interval="5m", progress=False)
+                      end=end_dt + timedelta(days=1), interval="5m",
+                      progress=False, auto_adjust=True)
     dfd = yf.download(sym, start=end_dt - timedelta(days=180),
-                      end=end_dt + timedelta(days=1), interval="1d", progress=False)
+                      end=end_dt + timedelta(days=1), interval="1d",
+                      progress=False, auto_adjust=True)
     if df5.empty or dfd.empty:
         return pd.DataFrame(), pd.DataFrame()
     for d in [df5, dfd]:
@@ -69,17 +68,33 @@ def candle_chart(df5):
     return alt.vconcat(candle, volume).resolve_scale(x='shared').configure_view(strokeOpacity=0)
 
 def render(ticker, df5, dfd, name):
+    # 最新値（fast_info）― 当日表示と終値上書きに使う
+    last_price = None
+    try:
+        last_price = float(yf.Ticker(f"{ticker}.T").fast_info.get("lastPrice") or 0) or None
+    except Exception:
+        pass
+
     c1, _, c3 = st.columns([2, 1, 1])
     with c1:
         st.subheader(f"{ticker} {name}")
+        if last_price:
+            _ps = f"{last_price:,.1f}" if last_price != int(last_price) else f"{int(last_price):,}"
+            st.subheader(_ps)
         st.caption(f"📈 Max: {df5['High'].max():,.1f} JPY　　📉 Min: {df5['Low'].min():,.1f} JPY")
     with c3:
         st.altair_chart(daily_line_chart(dfd), width='stretch')
     s = df5.groupby(df5['Datetime'].dt.date).agg(
         Open=('Open','first'), High=('High','max'), Low=('Low','min'), Close=('Close','last')
     ).sort_index()
-    idx = s.index.intersection(dfd.index)
-    if len(idx): s.loc[idx, ['Open','High','Low','Close']] = dfd.loc[idx, ['Open','High','Low','Close']].values
+    dfd_valid = dfd.dropna(subset=['Close'])
+    idx = s.index.intersection(dfd_valid.index)
+    if len(idx): s.loc[idx, ['Open','High','Low','Close']] = dfd_valid.loc[idx, ['Open','High','Low','Close']].values
+    # 当日（dfd未確定）の終値は fast_info で上書き（5分足末尾は公式の引け値とズレることがある）
+    if last_price and len(s) > 0:
+        _last_d = s.index[-1]
+        if _last_d not in dfd_valid.index:
+            s.loc[_last_d, 'Close'] = last_price
     prev = dfd['Close'].shift(1)
     def chg_str(d):
         if d in prev.index and pd.notna(prev.loc[d]):
@@ -97,14 +112,12 @@ st.set_page_config(page_title="５分足チャート", page_icon="📈", layout=
 st.markdown("<style>.stDataFrame div{border-radius:0px;}</style>", unsafe_allow_html=True)
 st.sidebar.markdown("## 📈 ５分足チャート")
 
-raw      = st.sidebar.text_area("銘柄コード", value="7203", height=160)
+raw      = st.sidebar.text_area("銘柄コード", value="5020", height=160)
 end_date = st.sidebar.date_input("基準日", value=datetime.now())
-days     = st.sidebar.number_input("遡る日数", min_value=1, max_value=60, value=20, step=1)
+days     = st.sidebar.number_input("遡る日数", min_value=1, max_value=60, value=15, step=1)
 tickers  = [t.strip() for t in re.split(r'[,\s\n]+', raw) if t.strip()]
-topix    = load_topix()
 
 for ticker in tickers:
-    sleep(0.2)
     df5, dfd = load_stock(ticker, end_date, days)
     if not df5.empty:
-        render(ticker, df5, dfd, topix.get(str(ticker), f"{ticker}.T"))
+        render(ticker, df5, dfd, get_name(ticker))

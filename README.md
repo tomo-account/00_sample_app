@@ -1,84 +1,89 @@
-# 📈 サンプルアプリ（５分足チャート）
+# 📈 SNS発信に使える Streamlit 株価アプリ3本
 
-日本株の５分足チャートを表示する Streamlit アプリです。複数銘柄を同時に確認でき、ローソク足・出来高・日次騰落率をひとつの画面にまとめて表示します。
+`Streamlit` と `yfinance` だけで作る、SNS発信に使える日本株向けアプリ3本のサンプルコードです。いずれも 100〜150 行程度の単一ファイルで完結します。
 
-![](https://raw.githubusercontent.com/tomo-account/00_sample_app/refs/heads/main/image_chart.png)
+| # | アプリ | ファイル | 主な機能 |
+|:--|:--|:--|:--|
+| 1 | **5分足チャート** | `app_chart.py` | 複数銘柄のローソク足＋日足を1画面で確認 |
+| 2 | **SNSサムネイル生成** | `app_thumbnail_dark.py` / `app_thumbnail_normal.py` | 株価チャートを PNG 画像として出力（ダーク/ライト2種類） |
+| 3 | **AIプロンプトビルダー** | `app_prompt.py` | テクニカル指標を埋め込んだ Claude / ChatGPT 用プロンプトを生成 |
 
-<br><br>
-
-## 機能
-
-- **５分足ローソク足チャート** — 指定日数分の足データを表示（前場・後場の区切り線付き）
-- **日足ラインチャート** — 過去約６ヶ月の終値推移をサイドに表示
-- **日次サマリテーブル** — 終値・騰落率（前日終値比）を日付ごとに表示
-- **複数銘柄対応** — 銘柄コードをカンマ・スペース・改行区切りで複数入力可能
-- **TOPIX銘柄辞書** — `data_j.xls` から銘柄名を自動取得
-- **キャッシュ機能** — `yfinance` のデータを５分間キャッシュしてAPIコールを削減
-
-<br><br>
+<br>
 
 ## 必要要件
 
-- Python 3.9 以上
+- Python 3.10 以上
 
 ### 依存ライブラリ
 
 ```
-streamlit==1.52.2
-pandas==2.3.3
-altair==6.0.0
-yfinance==1.0
-openpyxl==3.1.5
-xlrd==2.0.2
+streamlit, pandas, numpy, altair, matplotlib, yfinance
 ```
 
-<br><br>
+<br>
 
 ## セットアップ
 
 ```bash
 # リポジトリをクローン
-git clone https://github.com/<your-username>/<repo-name>.git
-cd <repo-name>
+git clone https://github.com/tomo-account/00_sample_app.git
+cd 00_sample_app
 
 # 依存ライブラリをインストール
 pip install -r requirements.txt
 
-# アプリを起動
-streamlit run app.py
+# 任意のアプリを起動
+streamlit run app_chart.py
+streamlit run app_thumbnail_dark.py
+streamlit run app_thumbnail_normal.py
+streamlit run app_prompt.py
 ```
 
-<br><br>
+<br>
 
-## データファイル
+## 1. 5分足チャート — `app_chart.py`
 
-| ファイル | 説明 |
-|---|---|
-| `data_j.xls` | TOPIX採用銘柄の銘柄コード・銘柄名一覧。[JPX公式サイト](https://www.jpx.co.jp/markets/statistics-equities/misc/01.html) からダウンロードして `app.py` と同じディレクトリに配置してください。 |
+![](https://raw.githubusercontent.com/tomo-account/00_sample_app/refs/heads/main/image_chart.png)
 
-> `data_j.xls` が存在しない場合でも動作しますが、銘柄名の代わりにコード＋`.T` が表示されます。
+複数銘柄の5分足ローソク足を一画面で並べて表示します。
 
-<br><br>
+- **縦の境界線** でギャップアップ・ギャップダウンを視覚的に把握
+- 短期の値動きと中期トレンドを **同一画面で同時確認**
+- **日別マトリクステーブル** で終値・騰落率の推移を一覧
 
-## 使い方
+**使い方：** 銘柄コードをカンマ・スペース・改行で複数入力、基準日と遡る日数を指定するだけ。
 
-1. **銘柄コード** に表示したい証券コードを入力（例: `7203`、複数行入力も可）
-2. **基準日** で表示の終端日を指定
-3. **遡る日数** でチャートに表示する営業日数を設定（1〜20日）
+<br>
 
-<br><br>
+## 2. SNSサムネイル生成 — `app_thumbnail_dark.py` / `app_thumbnail_normal.py`
 
-## ディレクトリ構成
+| ダーク版 | ライト版 |
+|:--|:--|
+| ![](https://raw.githubusercontent.com/tomo-account/00_sample_app/refs/heads/main/image_thumbnail_dark.png) | ![](https://raw.githubusercontent.com/tomo-account/00_sample_app/refs/heads/main/image_thumbnail_normal.png) |
 
-```
-.
-├── app.py          # メインアプリ
-├── data_j.xls      # TOPIX銘柄一覧（別途配置）
-├── requirements.txt
-└── README.md
-```
+X（旧Twitter）や note のサムネイル画像として使える株価チャートを生成します。
 
-<br><br>
+- **グラデーション付きの折れ線チャート** で見栄えを意識
+- ボタンひとつで **PNG ダウンロード**
+- **ダーク版** と Google Finance に寄せた **ライト版** の2種類
+
+**使い方：** 証券コードと右側に載せたいテキスト（タイトル＋見出し）を入力 → 「Generate」ボタン。
+
+<br>
+
+## 3. AIプロンプトビルダー — `app_prompt.py`
+
+![](https://raw.githubusercontent.com/tomo-account/00_sample_app/refs/heads/main/image_prompt.png)
+
+株クラ向け X 投稿の3パターンを生成するための AI 用プロンプトをビルドします。
+
+- **RSI / MACD / ボリンジャーバンド / 移動平均** などを自動計算してプロンプトに埋め込み
+- ニュース・注目点を **任意で追加** できる入力欄
+- 株クラ用語・絵文字・〜です調などの指示を組み込んだ **プロンプトテンプレート**
+
+**使い方：** 証券コードとニュース・注目点を入力 → 「プロンプトを作成」ボタンで生成されたテキストを Claude / ChatGPT に貼り付け。
+
+<br>
 
 ## データの取り扱いについて
 
@@ -92,14 +97,14 @@ streamlit run app.py
 - [Yahoo! Developer API Terms of Use](https://policies.yahoo.com/us/en/yahoo/terms/product-atos/apiforydn/index.htm)
 - [Yahoo! 権利関係ページ](https://legal.yahoo.com/us/en/yahoo/permissions/requests/index.html)
 
-<br><br>
+<br>
 
 ## ⚠️ 免責事項
 
 - **データの正確性**：取得データは正確性や即時性を保証しません。
 - **損害への責任**：本ツールの利用により生じたいかなる損害についても、制作者は一切の責任を負いません。
 
-<br><br>
+<br>
 
 ## ライセンス
 
