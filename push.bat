@@ -20,7 +20,7 @@ set /p MSG="Commit message: "
 if "%MSG%"=="" set MSG=update
 
 git commit -m "%MSG%"
-git push -u origin main
+git push -u --force-with-lease origin main
 
 if %errorlevel% == 0 (
     echo Push succeeded.
