@@ -39,13 +39,13 @@ Python 100〜150 行の単一ファイルで完結する Streamlit アプリを3
 
 <br>
 
-![サムネイル生成画面](image_thumbnail_dark.png)
+![サムネイル生成画面](image_thumbnail_dark_v2.png)
 
 <br>
 
 | ダーク版 | ライト版（Google Finance 寄せ） |
 |:--:|:--:|
-| <img src="thumbnail_dark.png" width="300"> | <img src="thumbnail_normal.png" width="300"> |
+| <img src="thumbnail_dark_v2.png" width="300"> | <img src="thumbnail_normal_v2.png" width="300"> |
 
 <br><br><br><br>
 
